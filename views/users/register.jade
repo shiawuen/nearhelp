@@ -1,0 +1,23 @@
+
+h2 Register
+
+p 
+  | Create an account or
+  | <a href="/sign-in-with-fb">Connect with Facebook</a>
+
+form(action="/register", method="post")
+  fieldset
+
+    label(for="reg_email") Email
+    input(type="email", name="email", id="reg_email")
+
+    label(for="reg_password") Password
+    input(type="password", name="password", id="reg_password")
+
+    label(for="reg_confirm") Confirm Password
+    input(type="password", name="confirm_password", id="reg_confirm")
+
+    label(for="reg_name") Name
+    input(type="text", name="name", id="reg_name")
+
+    input(type="submit", value="Rock'n'Roll!")

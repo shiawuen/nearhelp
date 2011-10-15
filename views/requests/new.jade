@@ -1,0 +1,26 @@
+
+h2 New Requests
+
+form(action="/r/new", method="post")
+  fieldset
+    label(for="new_r_title") What do you need? In short...
+    input(type="text", name="title", id="new_r_title")
+
+    label(for="new_r_description") Details about it?
+    textarea(name="description", id="new_r_description")
+
+    label(for="new_r_location") Where is it?
+    input(type="text", name="location", id="new_r_location")
+
+    label(for="new_r_willpay") 
+      input(type="checkbox")
+      #{"There a bounty for this?"}
+      
+    label(for="new_r_bounty") I would like to pay &#36;
+    input(type="text", name="bounty", id="new_r_bounty")
+
+    input(type="submit", value="Ready to GO!")
+    
+    
+    
+  

@@ -30,15 +30,122 @@ app.configure('production', function(){
 
 // Routes
 
+
+
+/********************************
+ ********************************
+              Home 
+ ********************************
+ ********************************/
 app.get('/', function(req, res){
   res.render('index', {
-    title: 'Express'
+    title: 'NearHelp'
   });
 });
 
+
+
+/********************************
+ ********************************
+          Authentication 
+ ********************************
+ ********************************/
 app.get('/signin', function(req, res) {
   
-  res.render('users/signin')
+  res.render('users/signin', {
+    title: 'Sign In'
+  })
+});
+app.get('/register', function(req, res) {
+  
+  res.render('users/register', {
+    title: 'Register'
+  })
+});
+app.get('/signout', function(req, res) {
+
+  res.redirect('/')
+});
+
+
+
+/********************************
+ ********************************
+      Requests 
+ ********************************
+ ********************************/
+app.get('/requests', function(req, res) {
+
+  res.render('requests/list', {
+    title: 'All Requests'
+  });
+
+});
+app.get('/r/:id', function(req, res, next) {
+  if (req.params.id === 'new') { return next(); }
+
+  res.render('requests/view', {
+    title: 'REQUESTS TITLE'
+  });
+
+});
+app.get('/r/new', function(req, res) {
+
+  
+
+  res.render('requests/new', {
+    title: 'New Requests'
+  });
+
+});
+app.get('/r/:id/comments', function(req, res) {
+
+  res.render('comments/list', {
+    title: 'Comments'
+  });
+
+});
+app.get('/r/:id/comment', function(req, res) {
+
+  res.render('comments/new', {
+    title: 'Comment'
+  });
+
+});
+app.get('/r/:id/i-can-help', function(req, res) {
+
+  res.render('requests/icanhelp', {
+    title: 'I Can Help'
+  });
+
+});
+
+
+/********************************
+ ********************************
+      User Account Section 
+ ********************************
+ ********************************/
+app.get('/me', function(req, res) {
+  
+  res.render('users/account', {
+    title: 'USERNAME'
+  });
+});
+
+// List of friends user have
+app.get('/me/friends', function(req, res) {
+  
+  res.render('users/friends', {
+    title: 'USERNAME&rsquo;s Friends'
+  });
+});
+
+app.get('/me/requests', function(req, res){
+  
+  res.render('requests/list', {
+    title: 'USERNAME&rsquo;s Requests'
+  });
 });
 
 app.listen(3000);

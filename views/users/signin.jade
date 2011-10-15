@@ -1,13 +1,19 @@
 
+
 h2 Sign In
 
-form (action="/signin" method="post")
+p 
+  | Don&rsquo;t have an account?
+  | <a href="/register">Get one now!</a>
+
+
+form(action="/signin", method="post")
   fieldset
 
-    label (for="auth_email") Email
-    input (type="email" name="email" id="auth_email")
+    label(for="auth_email") Email
+    input(type="email", name="email", id="auth_email")
 
-    label (for="auth_password") Password
-      input (type="password" name="password" id="auth_password")
+    label(for="auth_password") Password
+      input(type="password", name="password", id="auth_password")
 
-    input (type="submit" value="Sign In")
+    input(type="submit", value="Sign In")

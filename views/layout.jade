@@ -3,23 +3,33 @@ html
   head
     meta(charset='utf-8')
 
-    title= title
+    - if ('undefined' !== typeof title)
+      title= title
+    - else
+      title NearHelp
 
     link(rel='stylesheet', href='/stylesheets/style.css')
 
   body
     h1.logo
-      a(href='/helps') NearHelp
-      
-    ul
+      a(href='/') NearHelp
 
-      li
-        a(href='/help/new') New Request
-      li
-        a(href='/signout') Logout
-      li
-        a(href='/register') Register
-      li
-        a(href='/signin') Sign In
+    - if (everyauth.loggedIn)
+      a(href="/r/new") New Task
+
+      ul
+        li
+          a(href='/requests') Tasks
+        li
+          a(href='/notifications') Notifications
+        li
+          a(href='/me') Account
+          
+    - else 
+      ul
+        li
+          a(href='/register') Register
+        li
+          a(href='/signin') Sign In
 
     != body

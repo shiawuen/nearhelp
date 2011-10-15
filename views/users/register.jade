@@ -5,6 +5,8 @@ p
   | Create an account or
   | <a href="/sign-in-with-fb">Connect with Facebook</a>
 
+!= partial('../errors/forms')
+
 form(action="/register", method="post")
   fieldset
 
@@ -13,9 +15,6 @@ form(action="/register", method="post")
 
     label(for="reg_password") Password
     input(type="password", name="password", id="reg_password")
-
-    label(for="reg_confirm") Confirm Password
-    input(type="password", name="confirm_password", id="reg_confirm")
 
     label(for="reg_name") Name
     input(type="text", name="name", id="reg_name")

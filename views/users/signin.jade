@@ -6,14 +6,17 @@ p
   | Don&rsquo;t have an account?
   | <a href="/register">Get one now!</a>
 
+!= partial('../errors/forms')
 
 form(action="/signin", method="post")
   fieldset
 
     label(for="auth_email") Email
-    input(type="email", name="email", id="auth_email")
+    input(name="email", id="auth_email",
+          type="email", value="shiawuen@gmail.com")
 
     label(for="auth_password") Password
-      input(type="password", name="password", id="auth_password")
+      input(name="password", id="auth_password"
+            type="password", value="123456789")
 
     input(type="submit", value="Sign In")

@@ -169,6 +169,11 @@ CommentSchema
   .get(function() {
     return asPara(this.content);
   });
+CommentSchema
+  .virtual('prettyCreateAt')
+  .get(function() {
+    return prettyDate(this.createdAt);
+  });
 
 CommentSchema.plugin(useTimestamps);
 mongoose.model('Comment', CommentSchema);
@@ -198,6 +203,7 @@ Notification = mongoose.model('Notification');
  ********************************
  ********************************/
 var express = require('express');
+var prettyDate = require('./lib/prettydate');
 
 var app = module.exports = express.createServer();
 
@@ -214,7 +220,7 @@ app.configure(function(){
   app.use(express.static(__dirname + '/public'));
   app.use(express.logger({ format: '\x1b[1m:method\x1b[0m \x1b[33m:url\x1b[0m :response-time ms' }));
   app.use(function(req, res, next) {
-    require('./express-mongoose');
+    require('./lib/express-mongoose');
     next();
   });
 });

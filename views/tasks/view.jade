@@ -11,16 +11,23 @@ h2= title
 .description
   != task.descriptionInPara
 
-.actions
+.helpers
   a(href="/t/" +task._id+ "/i-can-help") I Can Help
 
-  form(action="/t/" +task._id+ "/comment", method="post")
-    fieldset
-
-      textarea(name="comment", placeholder="What&rsquo;s your thought?")
-        #{"It's a good day to die"}
-
-      input(type="submit", value="Comment")
 
 
-!= partial('../comments/list', {comments: task.comments})
+
+h3 Comments
+form(action="/t/" +task._id+ "/comment", method="post")
+  fieldset
+
+    textarea(name="comment", placeholder="What&rsquo;s your thought?")
+      #{"It's a good day to die"}
+
+    input(type="submit", value="Comment")
+ul.comments
+  - each comment in task.comments
+    li
+      .content= comment.contentInPara
+      a.user(href="/u/" +comment.user._id)= comment.user.name
+      span.on comment.prettyCreateAt

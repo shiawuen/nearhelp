@@ -15,5 +15,11 @@ google.maps.event.addListener(autocomplete, 'place_changed', function() {
   lngInput.value = latLng.Na;
 });
 
+var willpayInput = document.getElementById('new_r_willpay')
+var bountyInput = document.getElementById('new_r_bounty')
+
+willpayInput.addEventListener('change', function(event) {
+  bountyInput.className = this.checked ? '' : 'hidden';
+}, false)
 
 })();

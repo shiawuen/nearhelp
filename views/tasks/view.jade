@@ -1,33 +1,78 @@
 
+!= partial('./_bar')
 
-h2= title
-
-.meta
-  h3 Bounty
-  p= '$' + task.bounty
-  h3 Date
-  p= task.dateMonthDay
-
-.description
-  != task.descriptionInPara
-
-.helpers
-  a(href="/t/" +task._id+ "/i-can-help") I Can Help
+#task
+  #meta
+    - if (task.willpay && task.bounty > 0)
+      #metabounty
+        p= '$' + task.bounty
 
 
+    #metainfo(class="#{task.willpay ? 'fixsize': ''}")
+      h2#metatitle= task.title
+      ul
+        li
+          img(src="/images/icon_clock_b.png", width="10", height="10")
+        li.linfo= task.dateMonthDay
+        li
+          img(src="/images/icon_comments_b.png", width="10", height="10")
+        li.linfo= comments.length
+        li
+          img(src="/images/icon_user_b.png", width="10", height="10")
+        li.linfo
+          a(href="/u/" +task.user._id)= task.user.name
+      
+      p(style="clear:both;margin: 0;padding-top:5px")= task.location
 
 
-h3 Comments
-form(action="/t/" +task._id+ "/comment", method="post")
-  fieldset
+    .metadesc
+      != task.descriptionInPara
 
-    textarea(name="comment", placeholder="What&rsquo;s your thought?")
-      #{"It's a good day to die"}
 
-    input(type="submit", value="Comment")
+    .metadesc
+      - if (everyauth.loggedIn && everyauth.user.hash == task.user.hash)
+        a.redGBtn(href="/t/" +task._id+ "/complete") Mark Completed
+        a.redGBtn(href="/t/" +task._id+ "/remove") Remove
+
+      - if (everyauth.loggedIn && everyauth.user.hash != task.user.hash)
+        .helpers
+          - if (isHelper)
+            p.is-helping You are helping
+          - else
+            a.redGBtn(href="/t/" +task._id+ "/i-can-help") I Can Help
+
+      - if (everyauth.loggedIn && 'undefined' != typeof helpers && everyauth.user.hash == task.user.hash && helpers.length)
+        h3 Helper Requests
+        form(action="/t/" +task._id+ "/accept-help")
+          - each helper in helpers
+            label
+              input(type="checkbox", checked=helper.accepted)
+              = helper.helper.name
+          input.redGBtn(type="submit", value="Send Invite")
+
+
+
+
+.bar(style="border-top:1px solid #7c7b7b;")
+  ul
+    li Comments
+
+- if (everyauth.loggedIn)
+  .commentForm
+    form(action="/t/" +task._id+ "/comment", method="post")
+
+      textarea(name="comment", placeholder="What&rsquo;s your thought?")
+
+      input.redGBtn(type="submit", value="Comment")
+
 ul.comments
-  - each comment in task.comments
-    li
-      .content= comment.contentInPara
-      a.user(href="/u/" +comment.user._id)= comment.user.name
-      span.on comment.prettyCreateAt
+  - each comment in comments
+    li.commentcell
+      .commentleft
+        img(src="/images/user1.jpg", width="30", height="30")
+      .commentright
+        a.user(href="/u/" +comment.user._id)= comment.user.name
+        #{':'}
+        .content
+          != comment.contentInPara
+        span.commenttime= comment.prettyAt

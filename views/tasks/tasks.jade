@@ -1,16 +1,28 @@
 
-- if ('undefined' !== typeof tTitle)
-  h2= tTitle
+| <ul id="#{tTitle}">
 
-ul
-  - each task in tasks
-    li
-      h3 
-        a(href="/t/" +task._id)= task.title
-      .meta
-        span.date= task.dateMonthDay
-        span.comments= task.comments.length
-        a.user(href="/u/" +task.user._id)= task.user.name
-        - if (task.willpay && task.bounty > 0)
-          span.bounty= '$'+task.bounty
+- each task in tasks
+  li.cell
+    .cellleft
+      img(src="/images/user1.jpg", width="60", height="60")
+    .cellright
+      .celltop
+        h2
+          a(href="/t/" +task._id)= task.title
+      .cellbot
+        ul
+          li
+            img(src="/images/icon_user.png", width="10", height="10")
+          li.linfo(style="margin-bottom: 3px")
+            a.user(href="/u/" +task.user._id)= task.user.name
+          li(style="clear:left")
+            img(src="/images/icon_clock.png", width="10", height="10")
+          li.linfo= task.dateMonthDay
+          li
+            img(src="/images/icon_comments.png", width="10", height="10")
+          li.linfo= task.comments.length
+    - if (task.willpay && task.bounty > 0)
+      .cellbounty
+        h2= '$'+task.bounty
 
+|</ul>

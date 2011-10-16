@@ -1,36 +1,43 @@
 
-h2 New Task
+#page 
 
-form(action="/t/new", method="post", id="new_r")
-  fieldset
-
-    .field
-      label(for="new_r_title") What do you need? In short...
-      textarea(name="title", id="new_r_title", required) Talented developer help needed
-
-    .field
-      label(for="new_r_description") Details about it?
-      textarea(name="description", id="new_r_description", required) I'm bluffing =P
-
-    .field
-      label(for="new_r_date") When is it?
-      input(type="date", name="date", id="new_r_date", required, value="2011-10-17")
-
-    .field
-      label(for="new_r_location") The location?
-      input(type="text", name="location", id="new_r_location", value="71 Ayer Rajah Crescent Singapore")
-      input(type="text", name="lat", id="new_r_lat")
-      input(type="text", name="lng", id="new_r_lng")
-
-    .field
-      label(for="new_r_willpay") 
-        input(type="checkbox", name="willpay", value="willpay", id="new_r_willpay", checked)
-        #{"I will pay"}
+  form#signup(action="/t/new", method="post", id="new_r")
+    h3 Post a New Task
 
 
-    .field
-      label(for="new_r_bounty") I would like to pay &#36;
-      input(type="text", name="bounty", id="new_r_bounty", value="20")
+    label.hidden(for="new_r_title") What do you need? In short...
+    textarea(name="title", id="new_r_title", 
+             required, placeholder="What do you need? In short...", style="height:2.5em; min-height: 2em;") 
+      #{"Someone send me dinner @startupweekend"}
 
-    .action
-      input(type="submit", value="Post It!")
+
+    label.hidden(for="new_r_description") Details about it?
+    textarea(name="description", id="new_r_description", 
+             required, placeholder="Details about it?",
+             style="height: 10em") 
+      #{"I'm very hungry, can I have someone send me food after our presentation?\r\n\r\nIn return I'm a front-end developer, a good one, and will be able to save your day on CSS hell!"}
+
+
+    label.hidden(for="new_r_date") When is it?
+    input(type="date", name="date", id="new_r_date", required, 
+          placeholder="When is it?", value="2011-10-16")
+
+
+    label.hidden(for="new_r_location") The location?
+    input(type="text", name="location", id="new_r_location", value="71 Ayer Rajah")
+    input.hidden(type="text", name="lat", id="new_r_lat")
+    input.hidden(type="text", name="lng", id="new_r_lng")
+
+    br
+    label(for="new_r_willpay", style="display:block; margin-bottom:.5em;") 
+      input(type="checkbox", name="willpay", value="willpay", id="new_r_willpay")
+      span(style="margin-left: .5em;") I will pay &#36;
+
+
+
+    label.hidden(for="new_r_bounty") I would like to pay &#36;
+    input.hidden(type="text", name="bounty", id="new_r_bounty",
+          placeholder="Amount you willing to pay", value="100")
+
+
+    input.redGBtn(type="submit", value="Post It!")

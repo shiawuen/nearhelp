@@ -2,9 +2,7 @@
 
 /********************************
  ********************************
- ********************************
           DB & Data Model
- ********************************
  ********************************
  ********************************/
 var mongoose = require('mongoose')
@@ -22,8 +20,10 @@ var mongoose = require('mongoose')
 var UserSchema, User;
 
 UserSchema = new Schema({
-  friends: [UserSchema]
-})
+    followers:  [UserSchema]
+  , following: [UserSchema]
+});
+
 
 // Inject timestamp (createAt, updatedAt)
 UserSchema.plugin(useTimestamps);
@@ -52,14 +52,25 @@ UserSchema.plugin(mongooseAuth, {
   }
 });
 
-UserSchema.methods.allFriends = function() {
-  
+UserSchema.statics.withId = function(id) {
+  var promise = new Promise()
+
+  this
+    .findById(id)
+    .populate('friends')
+    .populate('helps')
+    .run(promise.resolve.bind(promise));
+
+  return promise;
 };
-UserSchema.statics.list = function(offset, max) {
-  
-};
-UserSchema.statics.nearby = function(latlng, offset, max) {
-  
+UserSchema.statics.isFollowing = function(uid, followerId) {
+  var promise = new Promise()
+
+  this
+    .findOne({_id: uid, followers: followerId}, ['_id'])
+    .run(promise.resolve.bind(promise));
+
+  return promise;
 };
 
 mongoose.model('User', UserSchema);
@@ -72,18 +83,17 @@ var monthArr = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'
                 ,'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 TaskSchema = new Schema({
-    title: String
+    title:       String
   , description: String
-  , due: Date
-  , location: String
-  , loc: {
-        lat: Number
-      , lng: Number
-    }
-  , willpay: Boolean
-  , bounty: Number
-  , user: { type: ObjectId, ref: 'User' }
-  , comments: [{ type: ObjectId, ref: 'Comment' }]
+  , due:         Date
+  , location:    String
+  , loc:         { lat: Number , lng: Number }
+  , willpay:     { type: Boolean, default: false }
+  , bounty:      { type: Number, default: 0 }
+  , completed:   { type: Boolean, default: false }
+  , user:        { type: ObjectId, ref: 'User' }
+  , helpers:     [{ type: ObjectId, ref: 'Helper' }]
+  , comments:    [{ type: ObjectId, ref: 'Comment' }]
 });
 
 TaskSchema.statics.list = function(type, opts) {
@@ -92,15 +102,15 @@ TaskSchema.statics.list = function(type, opts) {
 
   switch (type) {
     case 'nearby':
-      q = { willpay: true, bounty: { $gt: 0 } };
-      sort = 'bounty';
+      q = {  };
+      sort = 'due';
       break;
     case 'bounty':
       q = { willpay: true, bounty: { $gt: 0 } };
       sort = 'bounty';
       break;
     case 'mine':
-      q = { user: opts.user._id };
+      q = { user: opts.user };
       sort = 'due';
       break;
     case 'friends':
@@ -117,6 +127,16 @@ TaskSchema.statics.list = function(type, opts) {
       .populate('comments')
       .sort(sort, 1)
       .run(promise.resolve.bind(promise));
+
+  return promise;
+}
+TaskSchema.statics.withId = function(id) {
+  var promise = new Promise();
+
+  this
+    .findById(id)
+    .populate('user')
+    .run(promise.resolve.bind(promise));
 
   return promise;
 }
@@ -152,6 +172,61 @@ NotificationSchema.plugin(useTimestamps);
 mongoose.model('Notification', NotificationSchema);
 
 /********************************
+        Helper Model
+ ********************************/
+var HelperSchema, Helper;
+
+HelperSchema = new Schema({
+    helper:      { type: ObjectId, ref: 'User' }
+  , creator:     { type: ObjectId, ref: 'User' }
+  , task:        { type: ObjectId, ref: 'Task' }
+  , notified:    { type: Boolean, default: false }
+  , accepted:    { type: Boolean, default: false }
+  , completed:   { type: Boolean, default: false }
+  , completedOn: { type: Date }
+});
+
+HelperSchema.statics.withTaskId = function(tid) {
+  var promise = new Promise();
+
+  this
+    .find({task: tid})
+    .populate('helper')
+    .run(promise.resolve.bind(promise));
+
+  return promise;
+}
+HelperSchema.statics.isHelper = function(uid) {
+  var promise = new Promise();
+
+  this
+    .findOne({user: uid})
+    .run(promise.resolve.bind(promise));
+
+  return promise;
+}
+HelperSchema.statics.list = function(opts) {
+  var promise = new Promise();
+
+  this
+    .find({helper: opts.uid, completed: opts.completed})
+    .populate('task', ['title', '_id'])
+    .sort('completedOn', 1)
+    .run(promise.resolve.bind(promise));
+
+  return promise;
+}
+
+HelperSchema
+  .virtual('prettyCompletedOn')
+  .get(function() {
+    return prettyDate(this.completedOn.toLocaleString());
+  });
+
+HelperSchema.plugin(useTimestamps);
+mongoose.model('Helper', HelperSchema);
+
+/********************************
           Comment Model
  ********************************/
 var CommentSchema, Comment;
@@ -162,18 +237,34 @@ CommentSchema = new Schema({
   , task: { type: ObjectId, ref: 'Task' }
 });
 
+CommentSchema.plugin(useTimestamps);
+
+
+CommentSchema.statics.withTaskId = function(tid) {
+  var promise = new Promise();
+
+  this
+    .find({task: tid})
+    .populate('user')
+    .sort('createdAt', -1)
+    .sort('updatedAt', -1)
+    .run(promise.resolve.bind(promise));
+
+  return promise;
+}
+
 CommentSchema
   .virtual('contentInPara')
   .get(function() {
     return asPara(this.content);
   });
 CommentSchema
-  .virtual('prettyCreateAt')
+  .virtual('prettyAt')
   .get(function() {
-    return prettyDate(this.createdAt);
+    return prettyDate((this.createdAt || this.updatedAt).toLocaleString());
   });
 
-CommentSchema.plugin(useTimestamps);
+
 mongoose.model('Comment', CommentSchema);
 
 
@@ -187,8 +278,9 @@ mongoose.connect('mongodb://localhost/nearhelp');
         Define Model
  ********************************/
 User = mongoose.model('User');
-Comment = mongoose.model('Comment');
 Task = mongoose.model('Task');
+Helper = mongoose.model('Helper');
+Comment = mongoose.model('Comment');
 Notification = mongoose.model('Notification');
 
 
@@ -238,16 +330,18 @@ app.configure('production', function(){
 //////////// Routes /////////////
 
 /********************************
- ********************************
               Home 
- ********************************
  ********************************/
 app.get('/', function(req, res) {
   var mineTasks, friendTasks;
 
+  list('nearby', res);
+  
+  return;
+
   if (req.loggedIn) {
-    mineTasks = Task.list('mine', {user: req.user});
-    //friendTasks = Task.list('friend');
+    mineTasks = Task.list('mine', {user: req.user._id});
+    friendTasks = Task.list('friends', {users:req.user.following});
   }
 
   res.render('index.jade', {
@@ -261,28 +355,30 @@ app.get('/', function(req, res) {
 
 
 app.get('/ls/nearby', function(req, res) {
-  list('nearby', req, res);
+  list('nearby', res);
 });
 app.get('/ls/friends', function(req, res) {
-  list('friends', req, res);
+  list('friends', res, {users: req.user.following});
 });
 app.get('/ls/bounty', function(req, res) {
-  list('bounty', req, res);
+  list('bounty', res);
 });
 app.get('/ls/mine', function(req, res) {
-  list('mine', req, res);
+  list('mine', res, {user: req.user._id});
 });
 
-function list(type, req, res){
-
-  res.render('tasks/list', {
-    title: 'Tasks'
+function list(type, res, opts){
+  res.render('tasks/tasks', {
+      tTitle: type
+    , tasks: Task.list(type, opts)
+    , layout: 'layout2'
   });
 }
 
 
 /********************************
-            Notifications 
+          Notifications 
+              CUT 
  ********************************/
 app.get('notifications', function(req, res) {
   
@@ -296,43 +392,21 @@ app.get('notifications', function(req, res) {
 /********************************
             Tasks 
  ********************************/
-/*
-  TaskSchema = new Schema({
-      title: String
-    , description: String
-    , due: Date
-    , location: String
-    , loc: {
-          lat: Number
-        , lng: Number
-      }
-    , bounty: Number
-    , willpay: Boolean
-    , comments: [ObjectId]
-  });
-*/
-app.get('/tasks', function(req, res) {
-  res.render('tasks/list', {
-    title: 'All Tasks'
-  });
-
-});
 app.get('/t/:id', function(req, res, next) {
-  if (req.params.id === 'new') { return next(); }
+  var tid = req.params.id
+    , isHelper = false;
 
-  Task.findById(req.params.id, function(err, task) {
+  if (tid === 'new') { return next(); }
 
-    if (err) throw err
+  if (req.loggedIn) {
+    isHelper = Helper.isHelper(req.user._id); 
+  }
 
-    if (task)
-      res.render('tasks/view', {
-          title: task.title
-        , task: task
-      });
-    else
-      res.render('errors/404', {
-          title: 'Record not foudn'
-      });
+  res.render('tasks/view', {
+      task: Task.withId(tid)
+    , comments: Comment.withTaskId(tid)
+    , helpers: Helper.withTaskId(tid)
+    , isHelper: isHelper
   });
 });
 app.get('/t/new', function(req, res) {
@@ -359,8 +433,6 @@ app.post('/t/new', function(req, res) {
     task.bounty = req.body.bounty;
   }
 
-  console.log('Saving task');
-  console.log(task)
 
   task.save(function(err) {
     if (err) {
@@ -372,36 +444,130 @@ app.post('/t/new', function(req, res) {
     }
   });
 });
+app.get('/t/:id/offer', function(req, res) { 
 
-app.get('/t/:id/offer', function(req, res) {
 
-  res.render('tasks/icanhelp', {
-    title: 'I Can Help'
-  });
 
 });
 app.get('/t/:id/i-can-help', function(req, res) {
   
+  var tid = req.params.id;
+  
+  if (!req.user) { 
+    res.redirect('/t/' +tid);
+    return;
+  };
+
+  Task.findById(tid, function(err, task){
+    if (!task || task.user == req.user) {
+      res.redirect('/t/' +tid);
+      return;
+    }
+
+    var helper = new Helper();
+    
+    helper.task = task._id;
+    helper.helper = req.user._id;
+
+    helper.save(function(err) {
+      if (err) throw err;
+
+      res.redirect('/t/' +tid);
+    });
+
+  });
 });
+// CommentSchema = new Schema({
+//     content: String
+//   , user: { type: ObjectId, ref: 'User' }
+//   , task: { type: ObjectId, ref: 'Task' }
+// });
 app.post('/t/:id/comment', function(req, res) {
 
-  console.log(req.body);
+  var tid = req.params.id;
 
-  res.end('doh')
+  if (!req.user) { 
+    res.redirect('/t/'+tid);
+    return;
+  };
+  
+  Task.findById(tid, function(err, task) {
+
+    if (!task)
+      return res.redirect('/t/'+tid);
+
+    var comment = new Comment();
+
+    comment.content = req.body.comment;
+    comment.user    = req.user._id;
+    comment.task    = task._id;
+    comment.save(function(err) {
+      if (err) throw err;
+
+      task.comments.push( comment._id );
+      task.save(function(err) {
+        if (err) throw err;
+
+        res.redirect('/t/'+tid);
+      });
+    });
+  });
 });
 
 
 /********************************
       User Account Section 
  ********************************/
-app.get('/me', function(req, res) {
+app.get('/u/:id', showAccount);
+app.get('/me', showAccount);
+
+function showAccount(req, res) {
+  var uid = req.params.id
+    , isFollowing;
   
+  if (!uid && req.loggedIn)
+    uid = req.user._id
+  else if (req.route.path === '/me')
+    res.redirect('/signin');
+
+  if (req.loggedIn && uid != req.user._id)
+    isFollowing = User.isFollowing(uid, req.user._id)
+
   res.render('users/account', {
-    title: 'USERNAME'
+      profile: User.withId(uid)
+    , tasks: Task.list('mine', {user:uid})
+    , helps: Helper.list({uid: uid, completed: true})
+    , isFollowing: isFollowing
   });
+}
+
+app.get('/u/:id/follow', function(req, res) {
+  var uid = req.params.id;
+
+  User.findById(uid, function(err, user) {
+    if (!(uid in user.followers)) {
+
+      user.followers.push(req.user._id)
+      user.save(function(err){
+        if (err) throw err;
+
+        if (!(uid in req.user.following)) {
+          req.user.following.push(uid);
+          req.user.save(function(err){
+        
+          });
+          
+        } else res.redirect('/u/'+uid);
+      });
+    } else res.redirect('/u/'+uid);
+  })
+
+  
 });
 
+
 // List of friends user have
+// CUT
 app.get('/me/friends', function(req, res) {
   
   res.render('users/friends', {
@@ -409,6 +575,7 @@ app.get('/me/friends', function(req, res) {
   });
 });
 
+// CUT
 app.get('/me/tasks', function(req, res){
   
   res.render('tasks/list', {

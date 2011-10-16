@@ -1,22 +1,19 @@
 
-h2 Register
+#page
+  p.mt0
+    | Create an account or
+    | <a href="/sign-in-with-fb">Connect with Facebook</a>
 
-p 
-  | Create an account or
-  | <a href="/sign-in-with-fb">Connect with Facebook</a>
+  != partial('../errors/forms')
 
-!= partial('../errors/forms')
+  form#signup(action="/register", method="post")
+    label.hidden(for="reg_email") Email
+    input(type="email", name="email", id="reg_email", placeholder="Email e.g. hello@example.com", value="hello@doggydoggy.com")
 
-form(action="/register", method="post")
-  fieldset
+    label.hidden(for="reg_password") Password
+    input(type="password", name="password", id="reg_password", placeholder="Password", value="123456789")
 
-    label(for="reg_email") Email
-    input(type="email", name="email", id="reg_email")
+    label.hidden(for="reg_name") Name
+    input(type="text", name="name", id="reg_name", placeholder="Name to show everyone", "doggydoggy")
 
-    label(for="reg_password") Password
-    input(type="password", name="password", id="reg_password")
-
-    label(for="reg_name") Name
-    input(type="text", name="name", id="reg_name")
-
-    input(type="submit", value="Rock'n'Roll!")
+    input(type="image", src="/images/signup.png", width="240", height="41")

@@ -1,10 +1,12 @@
 
-!= partial('tasks/tasks', {tasks: nearbyTasks, tTitle: 'Near By'})
+!= partial('./_bar')  
 
-!= partial('tasks/tasks', {tasks: bountyTasks, tTitle: 'Bounty'})
+!= partial('tasks/tasks', {tasks: nearbyTasks, tTitle: 'nearby'})
+
+!= partial('tasks/tasks', {tasks: bountyTasks, tTitle: 'bounty'})
 
 - if ('undefined' !== typeof friendTasks)
-  != partial('tasks/tasks', {tasks: friendTasks, tTitle: 'Friends'})
+  != partial('tasks/tasks', {tasks: friendTasks, tTitle: 'friends'})
 
 - if ('undefined' !== typeof mineTasks)
-  != partial('tasks/tasks', {tasks: mineTasks, tTitle: 'My Tasks'})
+  != partial('tasks/tasks', {tasks: mineTasks, tTitle: 'mytasks'})

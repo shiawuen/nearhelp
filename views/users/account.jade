@@ -1,20 +1,46 @@
-h2 username
 
-h3 Tasks
-ul
-  li 
-    a(href="/request_url") Request 1
-  li 
-    a(href="/request_url") Request 2
-  li 
-    a(href="/request_url") Request 3
-  li 
-    a(href="/tasks") All
+!= partial("../_bar")
 
-h3 Friends
-ul
-  li Friend 1
-  li Friend 2
-  li Friend 3
-  li
-    a(href="/me/friends") View All
+#page
+  #profile
+    #profileimg
+      img(src="/images/avatar.jpg", width="60", height="60")
+    #profileright
+      #profileuser= profile.name
+      #profilefollow
+        - if (everyauth.loggedIn && everyauth.user.hash != profile.hash)
+          - if (!isFollowing)
+            a.grayBtn(href="/u/" +profile._id+ "/follow") Follow
+          - else
+            a.grayBtn(href="/u/" +profile._id+ "/unfollow") Following
+      .profilestats
+        p.stat1
+          a(href="/u/" +profile._id+ "/follower")= profile.followers.length
+        p Followers
+      .profilestats
+        p.stat1
+          a(href="/u/" +profile._id+ "/following")= profile.following.length
+        p Followers
+      .profilestats
+        p.stat1
+          a(href="/u/" +profile._id+ "/tasks")= tasks.length
+        p Tasks Completed
+
+
+- if (tasks.length)
+  .bar(style="border-top:1px solid #7c7b7b;")
+    ul
+      li Tasks (#{tasks.length})
+      
+  != partial('../tasks/tasks', {tTitle: 'mytasks', tasks: tasks})
+
+
+.bar(style="border-top:1px solid #7c7b7b;")
+  ul
+    li Help History (#{helps.length})
+- if (helps.length) 
+  ul
+    - each help in helps
+      li 
+        a(href="/r/"+help._id)= help.task.title
+        span.on= help.prettyCompletedOn

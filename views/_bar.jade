@@ -1,0 +1,19 @@
+
+.bar 
+  ul
+    li View:
+    - if (everyauth.loggedIn)
+      li
+        a(href='/ls/friends') Friends
+      li
+        a(href='/ls/nearby') Nearby
+      li
+        a(href='/ls/bounty') Bounty
+      li
+        a(href='/ls/mine') My Tasks
+    - else 
+      li
+        a(href='/ls/nearby') Nearby
+      li
+        a(href='/ls/bounty') Bounty
+      

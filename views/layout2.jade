@@ -32,7 +32,7 @@ html
               a(href='/ls/nearby')
                 img(src="/images/btn_left.png", width="80", height="33")
             li
-              a(href='javascript:void 0')
+              a(href='/notifications')
                 img(src="/images/btn_mid.png", width="80", height="33")
             li
               a(href='/me')
@@ -46,6 +46,7 @@ html
               a(href='/register')
                 img(src="/images/btn_signup.png", width="80", height="33")
 
+      != partial('./_bar')
       != body
 
   script(src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.js")

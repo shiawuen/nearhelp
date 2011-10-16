@@ -1,0 +1,16 @@
+
+- if ('undefined' !== typeof tTitle)
+  h2= tTitle
+
+ul
+  - each task in tasks
+    li
+      h3 
+        a(href="/t/" +task._id)= task.title
+      .meta
+        span.date= task.dateMonthDay
+        span.comments= task.comments.length
+        a.user(href="/u/" +task.user._id)= task.user.name
+        - if (task.willpay && task.bounty > 0)
+          span.bounty= '$'+task.bounty
+

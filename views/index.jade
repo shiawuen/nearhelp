@@ -1,0 +1,10 @@
+
+!= partial('tasks/tasks', {tasks: nearbyTasks, tTitle: 'Near By'})
+
+!= partial('tasks/tasks', {tasks: bountyTasks, tTitle: 'Bounty'})
+
+- if ('undefined' !== typeof friendTasks)
+  != partial('tasks/tasks', {tasks: friendTasks, tTitle: 'Friends'})
+
+- if ('undefined' !== typeof mineTasks)
+  != partial('tasks/tasks', {tasks: mineTasks, tTitle: 'My Tasks'})

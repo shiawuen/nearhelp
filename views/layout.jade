@@ -8,18 +8,18 @@ html
     - else
       title NearHelp
 
-    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='/css/style.css')
 
   body
     h1.logo
       a(href='/') NearHelp
 
     - if (everyauth.loggedIn)
-      a(href="/r/new") New Task
+      a(href="/t/new") New Task
 
       ul
         li
-          a(href='/requests') Tasks
+          a(href='/tasks') Tasks
         li
           a(href='/notifications') Notifications
         li
@@ -33,3 +33,9 @@ html
           a(href='/signin') Sign In
 
     != body
+
+  script(src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.js")
+  script(src="//maps.googleapis.com/maps/api/js?sensor=false&libraries=places")
+  script(src="/js/script.js")
+
+  

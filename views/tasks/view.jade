@@ -1,0 +1,26 @@
+
+
+h2= title
+
+.meta
+  h3 Bounty
+  p= '$' + task.bounty
+  h3 Date
+  p= task.dateMonthDay
+
+.description
+  != task.descriptionInPara
+
+.actions
+  a(href="/t/" +task._id+ "/i-can-help") I Can Help
+
+  form(action="/t/" +task._id+ "/comment", method="post")
+    fieldset
+
+      textarea(name="comment", placeholder="What&rsquo;s your thought?")
+        #{"It's a good day to die"}
+
+      input(type="submit", value="Comment")
+
+
+!= partial('../comments/list', {comments: task.comments})

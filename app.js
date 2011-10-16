@@ -16,8 +16,6 @@ var mongoose = require('mongoose')
   , Promise = mongoose.Promise
   , ObjectId = mongoose.SchemaTypes.ObjectId;
 
-require('express-mongoose');
-
 /********************************
           User Model
  ********************************/

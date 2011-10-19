@@ -554,7 +554,7 @@ app.get('/u/:id/follow', function(req, res) {
         if (!(uid in req.user.following)) {
           req.user.following.push(uid);
           req.user.save(function(err){
-        
+            res.redirect('/u/'+uid);
           });
           
         } else res.redirect('/u/'+uid);
@@ -562,7 +562,28 @@ app.get('/u/:id/follow', function(req, res) {
     } else res.redirect('/u/'+uid);
   })
 
-  
+});
+
+app.get('/u/:id/unfollow', function(req, res) {
+  var uid = req.params.id;
+
+  User.findById(uid, function(err, user) {
+    if (err) throw err;
+    
+    var index = user.followers.indexOf(req.user._id);
+
+    user.followers = user.followers.splice(index, 1);
+    user.save(function(err) {
+      if (err) throw err;
+
+      var index = req.user.following.indexOf(uid);
+
+      req.user.following = req.user.following.splice(index, 1);
+      req.user.save(function(err) {
+        res.redirect('/u/'+uid);
+      });
+    });
+  });
 });
 
 

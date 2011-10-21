@@ -532,6 +532,7 @@ app.get('/me', showAccount);
 
 function showAccount(req, res) {
   var uid = getUidOrRedirect(req, res, '/me');
+  var isFollowing;
 
   if (req.loggedIn && uid != req.user._id)
     isFollowing = User.isFollowing(uid, req.user._id)

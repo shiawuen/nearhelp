@@ -20,8 +20,8 @@ var mongoose = require('mongoose')
 var UserSchema, User;
 
 UserSchema = new Schema({
-    followers:  [UserSchema]
-  , following: [UserSchema]
+    followers:  [{ type: ObjectId, ref: 'User' }]
+  , following: [{ type: ObjectId, ref: 'User' }]
 });
 
 
@@ -57,8 +57,8 @@ UserSchema.statics.withId = function(id) {
 
   this
     .findById(id)
-    .populate('friends')
-    .populate('helps')
+    .populate('following', ['_id', 'name'])
+    .populate('followers', ['_id', 'name'])
     .run(promise.resolve.bind(promise));
 
   return promise;
@@ -123,7 +123,7 @@ TaskSchema.statics.list = function(type, opts) {
   }
 
   this.find(q)
-      .populate('user')
+      .populate('user', ['_id', 'name'])
       .populate('comments')
       .sort(sort, 1)
       .run(promise.resolve.bind(promise));
@@ -135,7 +135,16 @@ TaskSchema.statics.withId = function(id) {
 
   this
     .findById(id)
-    .populate('user')
+    .populate('user', ['_id', 'name'])
+    .run(promise.resolve.bind(promise));
+
+  return promise;
+}
+TaskSchema.statics.withUserId = function(uid) {
+    var promise = new Promise();
+
+  this
+    .find({user: uid}, ['_id', 'title'])
     .run(promise.resolve.bind(promise));
 
   return promise;
@@ -522,13 +531,7 @@ app.get('/u/:id', showAccount);
 app.get('/me', showAccount);
 
 function showAccount(req, res) {
-  var uid = req.params.id
-    , isFollowing;
-  
-  if (!uid && req.loggedIn)
-    uid = req.user._id
-  else if (req.route.path === '/me')
-    res.redirect('/signin');
+  var uid = getUidOrRedirect(req, res, '/me');
 
   if (req.loggedIn && uid != req.user._id)
     isFollowing = User.isFollowing(uid, req.user._id)
@@ -588,22 +591,48 @@ app.get('/u/:id/unfollow', function(req, res) {
 
 
 // List of friends user have
-// CUT
-app.get('/me/friends', function(req, res) {
-  
+app.get('/me/followers', getFollowers);
+app.get('/u/:id/followers', getFollowers);
+function getFollowers(req, res) {
+  var uid = getUidOrRedirect(req, res, '/me/followers');
+
   res.render('users/friends', {
-    title: 'USERNAME&rsquo;s Friends'
+      profile: User.withId(uid)
+    , prop: 'followers'
   });
-});
+}
+app.get('/me/following', getFollowing);
+app.get('/u/:id/following', getFollowing);
+function getFollowing(req, res) {
+  var uid = getUidOrRedirect(req, res, '/me/following');
 
-// CUT
-app.get('/me/tasks', function(req, res){
-  
+  res.render('users/friends', {
+      profile: User.withId(uid)
+    , prop: 'following'
+  });
+}
+
+app.get('/me/tasks', getTasks);
+app.get('/u/:id/tasks', getTasks);
+function getTasks(req, res){
+  var uid = getUidOrRedirect(req, res, '/me/tasks');
+
   res.render('tasks/list', {
-    title: 'USERNAME&rsquo;s Tasks'
+      profile: User.withId(uid)
+    , tasks: Task.withUserId(uid)
   });
-});
+}
 
+function getUidOrRedirect(req, res, selfPath) {
+  var uid = req.params.id;
+
+  if (!uid && req.loggedIn)
+    uid = req.user._id;
+  else if (req.route.path == selfPath)
+    return res.redirect('/signin');
+
+  return uid;
+}
 
 
 /********************************

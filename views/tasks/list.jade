@@ -1,9 +1,8 @@
 
-h2= title
+#page
+  h2= profile.name + '’s Tasks'
 
-ul
-  li Requests 1
-  li Requests 2
-  li Requests 3
-  li Requests 4
-  li Requests 5
+  ul
+  - each task in tasks
+    li
+      a(href="/t/" +task._id)= task.title

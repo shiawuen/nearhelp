@@ -1,8 +1,18 @@
 
-h2= title
+#page
+  h2
+    = profile.name
+    - if (prop == 'following')
+      #{' following'}
+    - else
+      #{' followers'}
 
-ul
-  li Friend 1
-  li Friend 2
-  li Friend 3
-  li Friend 4
+  ul
+  - each user in profile[prop]
+    li
+      a(href="/u/" +user._id)= user.name
+      - if (everyauth.loggedIn)
+        - if (user._id in everyauth.user[prop])
+          a(href="/u/" +user._id+ "/unfollow") Following
+        - else 
+          a(href="/u/" +user._id+ "/follow") Follow
